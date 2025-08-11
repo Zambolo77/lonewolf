@@ -740,46 +740,15 @@ button:disabled {
   </div>
 
 <script>
-window.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('characterForm');
-  if (!form) alert('Form not found!');
-  else alert('Form found!');
-  
-  try {
-    localStorage.setItem('test', 'hello');
-    if (localStorage.getItem('test') === 'hello') {
-      alert('localStorage works!');
-    } else {
-      alert('localStorage does NOT work!');
-    }
-  } catch (e) {
-    alert('localStorage error: ' + e.message);
-  }
-
-  // Now restore form data
-  restoreFormFromStorage();
-
-  // Attach input/change listeners for auto-save
-  if (form) {
-    form.addEventListener('input', saveFormToStorage);
-    form.addEventListener('change', saveFormToStorage);
-  }
-  const startSection = document.getElementById('startSection');
-  if (startSection) {
-    startSection.addEventListener('input', saveFormToStorage);
-    startSection.addEventListener('change', saveFormToStorage);
-  }
-});
-
 const FORM_STORAGE_KEY = 'lonewolf-character-form-v1';
 
 // Save form data to localStorage on every change
 function saveFormToStorage() {
-  alert('Saving form...');
   const form = document.getElementById('characterForm');
   if (!form) return;
   const data = {};
 
+  // Save all inputs, selects, and textareas
   Array.from(form.elements).forEach(el => {
     if (!el.name) return;
     if (el.type === 'checkbox' || el.type === 'radio') {
@@ -789,39 +758,44 @@ function saveFormToStorage() {
     }
   });
 
+  // Save additional fields outside the form
   const startSection = document.getElementById('startSection');
   if (startSection) data['startSection'] = startSection.value;
 
+  // Save bonus trackers & lock state
   data['lastEnduranceBonus'] = window.lastEnduranceBonus || 0;
   data['randomizeLocked'] = window.randomizeLocked || false;
 
   localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data));
-  alert('Saved to localStorage: ' + JSON.stringify(data));
 }
 
+// Restore form data from localStorage on page load
 function restoreFormFromStorage() {
-  alert('Restoring form...');
   const form = document.getElementById('characterForm');
   if (!form) return;
   const data = JSON.parse(localStorage.getItem(FORM_STORAGE_KEY) || '{}');
 
   Object.entries(data).forEach(([name, value]) => {
+    // Handle bonus trackers & lock state
     if (name === 'lastEnduranceBonus') window.lastEnduranceBonus = value;
     if (name === 'randomizeLocked' && typeof setRandomizeLockState === "function")
       setRandomizeLockState(value === "true" || value === true);
 
+    // Handle startSection (outside form)
     if (name === 'startSection') {
       const startSection = document.getElementById('startSection');
       if (startSection) startSection.value = value;
       return;
     }
 
+    // Set form fields by name
     const field = form.elements.namedItem(name);
     if (field) {
       if (field.type === 'checkbox' || field.type === 'radio') {
         field.checked = value;
       } else {
         field.value = value;
+        // Resize textarea if needed
         if (field.tagName.toLowerCase() === 'textarea' &&
             typeof autoResizeTextarea === 'function') {
           autoResizeTextarea(field);
@@ -838,14 +812,29 @@ function restoreFormFromStorage() {
   if (typeof updateWeaponskillButtonState === 'function') updateWeaponskillButtonState();
   if (typeof checkMeals === 'function') checkMeals();
   if (typeof updateAvailableOptions === 'function') updateAvailableOptions();
-
-  alert('Restored data: ' + JSON.stringify(data));
 }
 
 // Remove form data from localStorage on reset
 function clearFormStorage() {
   localStorage.removeItem(FORM_STORAGE_KEY);
 }
+
+// Auto-save on input/change
+window.addEventListener('DOMContentLoaded', () => {
+  restoreFormFromStorage();
+
+  const form = document.getElementById('characterForm');
+  if (form) {
+    form.addEventListener('input', saveFormToStorage);
+    form.addEventListener('change', saveFormToStorage);
+  }
+  // Save startSection field too
+  const startSection = document.getElementById('startSection');
+  if (startSection) {
+    startSection.addEventListener('input', saveFormToStorage);
+    startSection.addEventListener('change', saveFormToStorage);
+  }
+});
 
 // Hook into resetForm to clear storage
 const originalResetForm = window.resetForm;
@@ -1953,6 +1942,7 @@ notes.addEventListener('input', function () {
   </script>
 </body>
 </html>
+
 
 
 
