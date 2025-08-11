@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test localStorage on iPad</title>
+  <style>
+    body { font-family: sans-serif; margin: 2em; }
+    input, button { font-size: 1.2em; margin: 0.5em; }
+  </style>
+</head>
+<body>
+  <h2>Test localStorage in your Browser</h2>
+  <input type="text" id="testInput" placeholder="Enter any text" />
+  <button onclick="saveTest()">Save to localStorage</button>
+  <button onclick="readTest()">Read from localStorage</button>
+  <button onclick="clearTest()">Clear localStorage</button>
+  <div id="output" style="margin-top:1em; color: #007700; font-weight:bold;"></div>
+
+  <script>
+    function saveTest() {
+      try {
+        const v = document.getElementById('testInput').value;
+        localStorage.setItem('test', v);
+        document.getElementById('output').textContent = 'Saved: ' + v;
+      } catch (e) {
+        document.getElementById('output').textContent = 'Error saving: ' + e.message;
+      }
+    }
+
+    function readTest() {
+      try {
+        const v = localStorage.getItem('test');
+        document.getElementById('output').textContent = (v !== null) ? 'Read: ' + v : 'No value found in localStorage.';
+      } catch (e) {
+        document.getElementById('output').textContent = 'Error reading: ' + e.message;
+      }
+    }
+
+    function clearTest() {
+      try {
+        localStorage.removeItem('test');
+        document.getElementById('output').textContent = 'localStorage cleared.';
+      } catch (e) {
+        document.getElementById('output').textContent = 'Error clearing: ' + e.message;
+      }
+    }
+  </script>
+</body>
+</html>
