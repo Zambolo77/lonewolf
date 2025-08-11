@@ -879,6 +879,7 @@ function resetBonusTrackers() {
 document.getElementById("randomize0to9Btn").addEventListener("click", () => {
   const randomValue = Math.floor(Math.random() * 10); // 0–9
   document.getElementById("randomize0to9Result").value = randomValue;
+  saveFormToStorage();
 });
       
     function randomizeCombatSkill() {
@@ -887,6 +888,7 @@ document.getElementById("randomize0to9Btn").addEventListener("click", () => {
   const value = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('combatSkill').value = value;
   updateTotalCombatSkill();
+  saveFormToStorage();
 }
 
   function adjustCombatSkillBonus(delta) {
@@ -894,6 +896,7 @@ document.getElementById("randomize0to9Btn").addEventListener("click", () => {
   let value = parseInt(field.value) || 0;
   field.value = value + delta;
   updateTotalCombatSkill();
+  saveFormToStorage();
 }
 
 function saveForm() {
@@ -936,6 +939,7 @@ function saveForm() {
 
   // Step 4: Restore disabled state
   previouslyDisabled.forEach(el => el.disabled = true);
+  saveFormToStorage();
 }
 
 
@@ -990,6 +994,7 @@ function loadForm() {
 
       // ✅ Normalize after all values are loaded so bonuses aren't recalculated on empty fields
       normalizeLoadedBonuses();
+      saveFormToStorage();
 
       // Refresh messages & state
       const discoveredItem = document.getElementById('discoveredItem').value.trim();
@@ -998,6 +1003,7 @@ function loadForm() {
       updateWeaponskillButtonState();
       checkMeals();
       updateAvailableOptions();
+      saveFormToStorage();
     };
 
     reader.readAsText(file);
@@ -1030,6 +1036,7 @@ function computeCombatModifiersFromSelections() {
     weaponskill: (!isUnarmed && hasWeaponskill) ? 2 : 0,
     mindblast
   };
+  saveFormToStorage();
 }
 
 function computeEnduranceModifierFromDiscoveredItem() {
@@ -1037,13 +1044,15 @@ function computeEnduranceModifierFromDiscoveredItem() {
   if (item === "Helmet (+2 Endurance Bonus)") return 2;
   if (item === "Chainmail Waistcoat (+4 Endurance Bonus)") return 4;
   return 0;
+  saveFormToStorage();
 }
 
 function normalizeLoadedBonuses() {
   // Combat
   const bonusField = document.getElementById('combatSkillBonus');
   const displayedCombatBonus = parseInt(bonusField.value, 10) || 0;
-
+  saveFormToStorage();
+  
   const mods = computeCombatModifiersFromSelections();
   const modsSum = mods.unarmed + mods.weaponskill + mods.mindblast;
 
@@ -1060,7 +1069,8 @@ function normalizeLoadedBonuses() {
   const endField = document.getElementById('enduranceBonus');
   const displayedEnduranceBonus = parseInt(endField.value, 10) || 0;
   const endMod = computeEnduranceModifierFromDiscoveredItem();
-
+  saveFormToStorage();
+  
   lastEnduranceBonus = endMod;
   baseEnduranceBonus = displayedEnduranceBonus - endMod;
   endField.value = baseEnduranceBonus + endMod;
@@ -1072,6 +1082,7 @@ function normalizeLoadedBonuses() {
   updateTotalEndurancePoints();
   updateCombatSkillMessages && updateCombatSkillMessages();
   updateEnduranceBonusMessage && updateEnduranceBonusMessage(document.getElementById('discoveredItem').value.trim());
+  saveFormToStorage();
 }
 
 
@@ -1084,6 +1095,7 @@ function resetForm() {
     document.getElementById('startSection').value = '';
   const form = document.getElementById('characterForm');
   form.reset();
+  saveFormToStorage();
 
   // Clear combat log
   document.getElementById('combat-log').innerText = '';
@@ -1098,7 +1110,7 @@ function resetForm() {
 for (let i = 1; i <= 10; i++) {
   const select = document.getElementById(`discipline${i}`);
   if (!select) continue;
-
+saveFormToStorage();
   // Find the first option whose text starts with "--Select"
   const defaultOption = Array.from(select.options).find(opt =>
     opt.text.trim().toLowerCase().startsWith("-- select")
@@ -1117,6 +1129,7 @@ for (let i = 1; i <= 10; i++) {
 
   if (typeof updateAvailableOptions === "function") {
     updateAvailableOptions();
+    saveFormToStorage();
   }
 
 // Reset the notes textarea height to default (empty string)
@@ -1142,6 +1155,7 @@ document.getElementById("enduranceBonusMessage").textContent = "";
 lastHelmetBonus = 0;
 lastChainmailBonus = 0;
 checkMeals();
+saveFormToStorage();
 }
 
 
@@ -1156,6 +1170,7 @@ checkMeals();
   syncPlayerFields(); // <-- Optional: re-sync if any values are recalculated later
   updateCombatSkillBonus();
   updateCombatSkillMessages();
+  saveFormToStorage();
   
 }
 
@@ -1164,6 +1179,7 @@ function updateTotalCombatSkill() {
   const bonus = parseInt(document.getElementById('combatSkillBonus').value) || 0;
   document.getElementById('totalCombatSkill').value = skill + bonus;
   syncPlayerFields(); // <- add this
+  saveFormToStorage();
 }
 
    function randomizeEndurancePoints() {
@@ -1172,6 +1188,7 @@ function updateTotalCombatSkill() {
   const value = Math.floor(Math.random() * (max - min + 1)) + min;
   document.getElementById('endurancePoints').value = value;
   updateTotalEndurancePoints();
+     saveFormToStorage();
 }
 
 function adjustEnduranceBonus(delta) {
@@ -1179,6 +1196,7 @@ function adjustEnduranceBonus(delta) {
   let value = parseInt(field.value) || 0;
   field.value = value + delta;
   updateTotalEndurancePoints();
+  saveFormToStorage();
 }
 
 function updateTotalEndurancePoints() {
@@ -1187,6 +1205,7 @@ function updateTotalEndurancePoints() {
   document.getElementById('totalEndurancePoints').value = points + bonus;
   setInitialCurrentEndurance();
   syncPlayerFields();
+  saveFormToStorage();
 }
 
 function adjustCurrentEndurancePoints(change) {
@@ -1196,6 +1215,7 @@ function adjustCurrentEndurancePoints(change) {
   if (value < 0) value = 0; // prevent negative values
   field.value = value;
   syncPlayerFields(); // <- add this
+  saveFormToStorage();
 }
 
 function resetEnduranceFields() {
@@ -1203,11 +1223,13 @@ function resetEnduranceFields() {
   document.getElementById('endurancePoints').value = '';
   document.getElementById('enduranceBonus').value = '0';
   document.getElementById('totalEndurancePoints').value = '';
+  saveFormToStorage();
 
   // Clear any endurance bonus message
   const enduranceMsg = document.getElementById('enduranceBonusMessage');
   if (enduranceMsg) {
     enduranceMsg.textContent = '';
+    saveFormToStorage();
   }
 
   // Reset your global tracking variable for endurance bonus
@@ -1237,7 +1259,7 @@ function resetEnduranceFields() {
   function updateAvailableOptions() {
     const selects = document.querySelectorAll('#kaiDisciplinesSection select');
     const selectedValues = Array.from(selects).map(select => select.value);
-
+    
     selects.forEach(select => {
       const options = select.querySelectorAll('option');
       options.forEach(option => {
@@ -1252,6 +1274,7 @@ function resetEnduranceFields() {
         }
       });
     });
+    saveFormToStorage();
   }
 
   function randomizeKaiDisciplines() {
@@ -1274,6 +1297,7 @@ function resetEnduranceFields() {
     updateWeaponskillButtonState(); // <--- call this here!
     updateCombatSkillBonus();
     updateCombatSkillMessages();
+    saveFormToStorage();
   }
 
   // Attach change listeners when page loads
@@ -1283,6 +1307,7 @@ function resetEnduranceFields() {
       select.addEventListener('change', updateAvailableOptions);
     });
     updateAvailableOptions(); // Initial setup
+    saveFormToStorage();
   });
 
 const weaponskillOptions = [
@@ -1300,7 +1325,7 @@ const weaponskillOptions = [
 
 const weaponskillButton = document.getElementById('randomizeWeaponskillBtn');
 const weaponskillField = document.getElementById('weaponskillField');
-
+saveFormToStorage();
 function checkWeaponskillSelected() {
   const selects = document.querySelectorAll('#kaiDisciplinesSection select');
   let enabled = false;
@@ -1310,6 +1335,7 @@ function checkWeaponskillSelected() {
     }
   });
   weaponskillButton.disabled = !enabled;
+  saveFormToStorage();
 }
 
 // Randomize weapon and update text field
@@ -1321,6 +1347,7 @@ function randomizeWeaponskill() {
   weaponskillField.value = weapon;
   updateCombatSkillBonus();
   updateCombatSkillMessages();
+  saveFormToStorage();
 }
 
 
@@ -1333,6 +1360,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const selects = document.querySelectorAll('#kaiDisciplinesSection select');
   selects.forEach(select => {
     select.addEventListener('change', checkWeaponskillSelected);
+    saveFormToStorage();
   });
 
   // Button click listener
@@ -1344,6 +1372,7 @@ document.getElementById("decreaseGold").addEventListener("click", () => {
   let value = parseInt(goldField.value, 10) || 0;
   if (value > 0) {
     goldField.value = value - 1;
+    saveFormToStorage();
   }
 });
 
@@ -1353,6 +1382,7 @@ document.getElementById("increaseGold").addEventListener("click", () => {
   if (value < 50) {
     goldField.value = value + 1;
   }
+  saveFormToStorage();
 });
 
 
@@ -1360,24 +1390,28 @@ document.getElementById('randomizeGoldBtn').addEventListener('click', () => {
   const goldField = document.getElementById('beltPouchGold');
   const randomGold = Math.floor(Math.random() * 10); // 0 to 9
   goldField.value = randomGold;
+  saveFormToStorage();
 });
 
 const mealsInput = document.getElementById('meals');
 const decreaseMealsBtn = document.getElementById('decreaseMealsBtn');
 const increaseMealsBtn = document.getElementById('increaseMealsBtn');
-
+saveFormToStorage();
+    
 decreaseMealsBtn.addEventListener('click', () => {
   let currentValue = parseInt(mealsInput.value) || 0;
   if (currentValue > 0) {  // optionally prevent negative values
     mealsInput.value = currentValue - 1;
   }
   checkMeals();
+  saveFormToStorage();
 });
 
 increaseMealsBtn.addEventListener('click', () => {
   let currentValue = parseInt(mealsInput.value) || 0;
   mealsInput.value = currentValue + 1;
   checkMeals();
+  saveFormToStorage();
 });
 
 function checkMeals() {
@@ -1409,17 +1443,19 @@ const discoveredItems = [
 document.getElementById('randomizeDiscoveredItemBtn').addEventListener('click', () => {
   const randomIndex = Math.floor(Math.random() * discoveredItems.length);
   document.getElementById('discoveredItem').value = discoveredItems[randomIndex];
+  saveFormToStorage();
 });
 
 function updateWeaponskillButtonState() {
   const disciplines = [];
   for (let i = 1; i <= 10; i++) {
     disciplines.push(document.getElementById(`discipline${i}`).value);
+    saveFormToStorage();
   }
 
   const hasWeaponskill = disciplines.includes("Weaponskill - +2 points to Combat skill when carrying skill weapon");
   const randomizeBtn = document.getElementById("randomizeWeaponskillBtn");
-
+  saveFormToStorage();
   // Check if randomizeLocked is true (global variable), and disable button accordingly
   if (randomizeLocked || !hasWeaponskill) {
     randomizeBtn.disabled = true;
@@ -1436,6 +1472,7 @@ function updateWeaponskillButtonState() {
 for (let i = 1; i <= 10; i++) {
   const select = document.getElementById(`discipline${i}`);
   select.addEventListener('change', updateWeaponskillButtonState);
+  saveFormToStorage();
 }
 
 
@@ -1609,6 +1646,7 @@ function resetCombat() {
 function setInitialCurrentEndurance() {
   const total = parseInt(document.getElementById('totalEndurancePoints').value);
   document.getElementById('currentEndurancePoints').value = isNaN(total) ? '' : total;
+  saveFormToStorage();
 }
 
  function syncPlayerFields() {
@@ -1625,12 +1663,14 @@ function setInitialCurrentEndurance() {
     document.getElementById("totalCombatSkill")?.addEventListener("input", syncPlayerFields);
     document.getElementById("currentEndurancePoints")?.addEventListener("input", syncPlayerFields);
     syncPlayerFields(); // sync once on load
+    saveFormToStorage();
   });
 
 function updateCombatSkillBonus() {
   const leftWeapon = document.getElementById("leftHand").value.toLowerCase();
   const rightWeapon = document.getElementById("rightHand").value.toLowerCase();
   const weaponskillWeapon = document.getElementById("weaponskillField").value.toLowerCase();
+  saveFormToStorage();
 
   const bonusField = document.getElementById("combatSkillBonus");
   let currentBonus = parseInt(bonusField.value, 10) || 0;
@@ -1672,6 +1712,7 @@ function updateCombatSkillBonus() {
 
   if (typeof updateTotalCombatSkill === 'function') {
     updateTotalCombatSkill();
+    saveFormToStorage();
   }
 
 }
@@ -1685,7 +1726,7 @@ function updateCombatSkillMessages() {
   const unarmedMsg = document.getElementById("unarmedMessage");
   const wsMsg = document.getElementById("weaponskillMessage");
   const mindblastMsg = document.getElementById("mindblastMessage");
-
+saveFormToStorage();
   // Clear previous messages
   unarmedMsg.textContent = "";
   wsMsg.textContent = "";
@@ -1716,7 +1757,7 @@ function updateCombatSkillMessages() {
 function updateEnduranceBonus() {
   const discoveredItem = document.getElementById('discoveredItem').value.trim();
   const enduranceBonusField = document.getElementById('enduranceBonus');
-
+saveFormToStorage();
   let currentBonus = parseInt(enduranceBonusField.value, 10) || 0;
 
   // Remove previous bonus
@@ -1741,6 +1782,7 @@ function updateEnduranceBonus() {
 
   if (typeof updateTotalEndurancePoints === "function") {
     updateTotalEndurancePoints();
+    saveFormToStorage();
   }
 }
 
@@ -1748,6 +1790,7 @@ function updateEnduranceBonus() {
 function updateEnduranceBonusMessage(discoveredItem) {
   const enduranceMsg = document.getElementById('enduranceBonusMessage');
   let message = '';
+  saveFormToStorage();
 
   if (discoveredItem === "Helmet (+2 Endurance Bonus)") {
     message = "+2 Endurance Bonus from Helmet";
@@ -1763,6 +1806,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Attach endurance bonus listeners
   const discoveredItemField = document.getElementById('discoveredItem');
   const randomizeBtn = document.getElementById('randomizeDiscoveredItemBtn');
+  saveFormToStorage();
 
   if (discoveredItemField) {
     // Change event for select elements is more appropriate than input
@@ -1786,6 +1830,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const randomIndex = Math.floor(Math.random() * discoveredItems.length);
       discoveredItemField.value = discoveredItems[randomIndex];
       updateEnduranceBonus();
+      saveFormToStorage();
     });
   }
 
@@ -1797,6 +1842,7 @@ if (leftHand) {
   leftHand.addEventListener("change", () => {
     updateCombatSkillBonus();
     updateCombatSkillMessages();
+    saveFormToStorage();
   });
 }
 
@@ -1807,11 +1853,13 @@ if (rightHand) {
   rightHand.addEventListener("change", () => {
     updateCombatSkillBonus();
     updateCombatSkillMessages();
+    saveFormToStorage();
   });
 }
 
   const weaponskillField = document.getElementById("weaponskillField");
   if (weaponskillField) weaponskillField.addEventListener("input", updateCombatSkillBonus);
+  saveFormToStorage();
 
   // Attach event listeners to discipline selects
 for (let i = 1; i <= 10; i++) {
@@ -1820,6 +1868,7 @@ for (let i = 1; i <= 10; i++) {
     select.addEventListener('change', () => {
       updateCombatSkillBonus();
       updateCombatSkillMessages();  // 👈 Add this here
+      saveFormToStorage();
     });
   }
 }
@@ -1839,14 +1888,15 @@ const randomizeButtons = [
 
 // Also include unnamed buttons with onclick handlers
 const otherRandomizeButtons = document.querySelectorAll('button[onclick^="randomize"]');
-
+saveFormToStorage();
 const disciplineDropdowns = document.querySelectorAll(".discipline-field");
-
+saveFormToStorage();
 let randomizeLocked = false;
 
 // 🔁 Toggle function
 function toggleRandomizeLock() {
   setRandomizeLockState(!randomizeLocked);
+  saveFormToStorage();
 }
 
 // ✅ Set state explicitly
@@ -1870,6 +1920,7 @@ function setRandomizeLockState(locked) {
   randomizeButtons.forEach(id => {
     const btn = document.getElementById(id);
     if (btn) btn.disabled = randomizeLocked;
+    saveFormToStorage();
   });
 
   // Disable or enable other buttons with inline onclick
@@ -1887,6 +1938,7 @@ function setRandomizeLockState(locked) {
 lockButton.addEventListener("click", toggleRandomizeLock);
 
 const notes = document.getElementById('notes');
+    saveFormToStorage();
 
 function autoResizeTextarea(textarea) {
   textarea.style.height = 'auto'; // reset any previously set height
@@ -1901,5 +1953,6 @@ notes.addEventListener('input', function () {
   </script>
 </body>
 </html>
+
 
 
